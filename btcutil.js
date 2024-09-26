@@ -3,6 +3,7 @@ import { Command } from 'commander';
 import crypto from 'crypto';
 import elliptic from 'elliptic';
 import chalk from 'chalk';
+import bs58check from 'bs58check';
 
 const { ec: EC } = elliptic;
 const ec = new EC('secp256k1');
@@ -141,7 +142,43 @@ const createScriptPubKey = (witnessScriptHex) => {
 	return scriptPubKey.toString('hex');
 };
 
-// Add the createScriptPubKey command
+/**
+ * Computes a P2PKH address from a compressed public key in hex format.
+ * @param {string} pubKeyHex - The compressed public key in hex format.
+ * @param {boolean} [testnet=false] - Set to true for testnet addresses.
+ * @returns {string} - The P2PKH address.
+ */
+function pubKeyToP2PKHAddress(pubKeyHex) {
+    // Step 1: Convert hex public key to Buffer
+    const pubKeyBuffer = Buffer.from(pubKeyHex, 'hex');
+
+    // Step 2: Perform SHA-256 hashing on the public key
+    const sha256Hash = crypto.createHash('sha256').update(pubKeyBuffer).digest();
+
+    // Step 3: Perform RIPEMD-160 hashing on the SHA-256 hash
+    const ripemd160Hash = crypto.createHash('ripemd160').update(sha256Hash).digest();
+
+    // Step 4: Add network version byte
+    const versionByte = 0x00; // 0x00 for mainnet
+    const extendedRipemd160 = Buffer.allocUnsafe(21);
+    extendedRipemd160.writeUInt8(versionByte, 0);
+    ripemd160Hash.copy(extendedRipemd160, 1); // Copy RIPEMD-160 hash after version byte
+
+    // Step 5 & 6: Base58Check encode the extended RIPEMD-160 hash
+    const address = bs58check.encode(extendedRipemd160);
+
+    return address;
+}
+
+program
+	.command('pubKeyToP2PKHAddress')
+	.description('Compute a P2PKH address from a compressed public key in hex format.')
+	.requiredOption('-k, --key <hex>', 'Compressed public key in hex format')
+	.action((options) => {
+		const { key } = options;
+		console.log(pubKeyToP2PKHAddress(key));
+	});
+
 program
 	.command('scriptPubKey')
 	.description('Create a scriptPubKey from a witness script in hex format')
