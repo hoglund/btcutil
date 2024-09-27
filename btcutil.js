@@ -11,7 +11,7 @@ const ec = new EC('secp256k1');
 const program = new Command();
 
 program
-	.name('btcUtil.js')
+	.name('btcutil.js')
 	.description('CLI tool for Bitcoin message signing and verification')
 	.version('1.0.0');
 
@@ -170,6 +170,57 @@ function pubKeyToP2PKHAddress(pubKeyHex) {
     return address;
 }
 
+const testSignatureVerification = () => {
+	const pubkey = '03e32974215bf4ece01344a6dff8a46a55b1da519e6c85e4e405e4a4f7c0fa08c8';
+	const signature = 'H4UODztnq2K+kjuYLDrNRh/FavOGS71l/wV819Gqd1kXZqj6s4nyiaGXmMW6+YYp+ZhmTf2MQlXonqaNIDeXaMY=';
+	const message = 'This is a test message for Bitcoin signature.';
+
+	const isValid = verifyMessage(message, pubkey, signature);
+
+	if (isValid) {
+		console.log(chalk.bold.green('Test PASSED.'));
+		return 0;
+	} else {
+		console.log(chalk.bold.red('Test FAILED.'));
+		return 1;
+	}
+}
+
+const testScriptPubKey = () => {
+	const witnessScript = '52 21 03e32974215bf4ece01344a6dff8a46a55b1da519e6c85e4e405e4a4f7c0fa08c8 21 03d84b3722bc385179c5bd8b9c7d65fff80887b3915abf2ebd3dec3f3339fc04a9 21 0399c2bc00e0ac8c0a658e65717a11776c902bcd6388d0f2070a2719cf62e8c787 53 ae';
+	const scriptPubKey = '0020dd4ea72860d320e26e0f029b52e0e0559e03c880293f843f6ba9bce84360517d';
+
+	const generatedScriptPubKey = createScriptPubKey(witnessScript);
+
+	if (generatedScriptPubKey === scriptPubKey) {
+		console.log(chalk.bold.green('Test PASSED.'));
+		return 0;
+	} else {
+		console.log(chalk.bold.red('Test FAILED.'));
+		return 1;
+	}
+}
+
+const testPubKeyToP2PKHAddress = () => {
+	const pubkey = '03e32974215bf4ece01344a6dff8a46a55b1da519e6c85e4e405e4a4f7c0fa08c8';
+	const address = '1qfRbKvzV7DCfaEb7eXPuLAHDEe64UQGS';
+	const generatedAddress = pubKeyToP2PKHAddress(pubkey);
+
+	if (generatedAddress === address) {
+		console.log(chalk.bold.green('Test PASSED.'));
+		return 0;
+	} else {
+		console.log(chalk.bold.red('Test FAILED.'));
+		return 1;
+	}
+}
+
+const testArray = [
+	testSignatureVerification,
+	testScriptPubKey,
+	testPubKeyToP2PKHAddress
+];
+
 program
 	.command('pubKeyToP2PKHAddress')
 	.description('Compute a P2PKH address from a compressed public key in hex format.')
@@ -211,6 +262,21 @@ program
 		} else {
 			console.log(chalk.bold.red('Signature is invalid.'));
 		}
+	});
+
+program
+	.command('test')
+	.description('Test cli functions')
+	.action((options) => {
+
+		const valid = testArray.reduce((total, testFunction) => total + testFunction(), 0);
+		if (valid === 0) {
+			console.log(chalk.bold.green('All tests PASSED.'));
+		} else {
+			console.log(chalk.bold.red(`${valid} test FAILED.`));
+		return 0;
+	}
+
 	});
 
 program.parse(process.argv);
