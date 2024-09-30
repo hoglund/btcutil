@@ -233,7 +233,7 @@ program
 program
 	.command('scriptPubKey')
 	.description('Create a scriptPubKey from a witness script in hex format')
-	.requiredOption('-w, --witness-script <witnessScriptHex>', 'Witness script in hex format with whitespace between parts')
+	.requiredOption('-w, --witnessScript <witnessScript>', 'Witness script in hex format with whitespace between parts')
 	.action((options) => {
 		const { witnessScript } = options;
 
