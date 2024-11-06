@@ -1,7 +1,9 @@
 #!/usr/bin/env node
 import { Command } from 'commander';
-import { pubKeyToP2PKHAddress, createScriptPubKey, verifyMessage } from './lib/lib.js';
 import chalk from 'chalk';
+
+import { pubKeyToP2PKHAddress, createScriptPubKey, verifyMessage } from './lib/lib.js';
+import { getRandomAmount } from './lib/random.js';
 
 const program = new Command();
 
@@ -53,5 +55,14 @@ program
 			console.log(chalk.bold.red('Signature is invalid.'));
 		}
 	});
+
+program
+    .command('getRandomAmount')
+    .description('Generate random amount')
+    .requiredOption('-m, --mean <mean>', 'mean')
+    .action(async (options) => {
+        const {mean} = options;
+        console.log(await getRandomAmount(mean));
+    });
 
 program.parse(process.argv);
