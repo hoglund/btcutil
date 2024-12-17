@@ -2,7 +2,7 @@
 import { Command } from 'commander';
 import chalk from 'chalk';
 
-import { pubKeyToP2PKHAddress, createScriptPubKey, verifyMessage } from './lib/lib.js';
+import { pubKeyToP2PKHAddress, p2wshScriptPubKey, p2wpkhScriptPubKey, verifyMessage } from './lib/lib.js';
 import { getRandomAmount } from './lib/random.js';
 
 const program = new Command();
@@ -24,18 +24,31 @@ program
 
 program
 	.command('scriptPubKey')
-	.description('Create a scriptPubKey from a witness script in hex format')
-	.requiredOption('-w, --witnessScript <witnessScript>', 'Witness script in hex format with whitespace between parts')
+	.description('Create a scriptPubKey in hex format')
+	.option('-s, --p2wsh <hex>', 'Witness script in hex format with whitespace between parts')
+	.option('-p, --p2wpkh <hex>', 'Witness script from public key')
 	.action((options) => {
-		const { witnessScript } = options;
+		const { p2wsh, p2wpkh } = options;
 
-		try {
-			const scriptPubKeyHex = createScriptPubKey(witnessScript);
-			console.log('scriptPubKey:', scriptPubKeyHex);
+		// Ensure that only one option is provided
+        if (!p2wsh && !p2wpkh) {
+            console.error('You must provide either a witness script (--p2wsh) or a public key (--p2pkh).');
+            process.exit(1);
+        }
+
+        try {
+			if (p2wsh) {
+                const scriptPubKeyHex = p2wshScriptPubKey(p2wsh);
+                console.log('scriptPubKey:', scriptPubKeyHex);
+			} else if (p2wpkh) {
+				console.log(p2wpkh);
+                const scriptPubKeyHex = p2wpkhScriptPubKey(p2wpkh);
+                console.log('scriptPubKey:', scriptPubKeyHex);
+			}
 		} catch (error) {
-			console.error('An error occurred:', error.message);
-			process.exit(1);
-		}
+            console.error('An error occurred:', error.message);
+            process.exit(1);
+        }
 	});
 
 program
