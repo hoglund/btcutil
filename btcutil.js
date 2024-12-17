@@ -3,7 +3,7 @@ import { Command } from 'commander';
 import chalk from 'chalk';
 
 import { pubKeyToP2PKHAddress, p2wshScriptPubKey, p2wpkhScriptPubKey, verifyMessage } from './lib/lib.js';
-import { getRandomAmount } from './lib/random.js';
+import { getRandomAmount, getRandomNumber } from './lib/random.js';
 
 const program = new Command();
 
@@ -73,9 +73,16 @@ program
     .command('getRandomAmount')
     .description('Generate random amount')
     .requiredOption('-m, --mean <mean>', 'mean')
-    .action(async (options) => {
+    .action((options) => {
         const {mean} = options;
-        console.log(await getRandomAmount(mean));
+        console.log(getRandomAmount(mean));
+    });
+
+program
+    .command('getRandomNumber')
+    .description('Generate random number')
+    .action(() => {
+        console.log(getRandomNumber());
     });
 
 program.parse(process.argv);
