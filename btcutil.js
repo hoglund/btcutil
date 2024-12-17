@@ -30,7 +30,7 @@ program
 
 		// Ensure that only one option is provided
         if (!p2wsh && !p2wpkh) {
-            console.error('You must provide either a witness script (--p2wsh) or a public key (--p2pkh).');
+            console.error('You must provide either a witness script (--p2wsh) or a public key (--p2wpkh).');
             process.exit(1);
         }
 
@@ -39,7 +39,6 @@ program
                 const scriptPubKeyHex = p2wshScriptPubKey(p2wsh);
                 console.log('scriptPubKey:', scriptPubKeyHex);
 			} else if (p2wpkh) {
-				console.log(p2wpkh);
                 const scriptPubKeyHex = p2wpkhScriptPubKey(p2wpkh);
                 console.log('scriptPubKey:', scriptPubKeyHex);
 			}
