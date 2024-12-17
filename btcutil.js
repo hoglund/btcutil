@@ -14,11 +14,9 @@ program
 
 
 program
-	.command('pubKeyToP2PKHAddress')
+	.command('pubKeyToP2PKHAddress <key>')
 	.description('Compute a P2PKH address from a compressed public key in hex format.')
-	.requiredOption('-k, --key <hex>', 'Compressed public key in hex format')
-	.action((options) => {
-		const { key } = options;
+	.action((key) => {
 		console.log(pubKeyToP2PKHAddress(key));
 	});
 
@@ -70,11 +68,9 @@ program
 	});
 
 program
-    .command('getRandomAmount')
+    .command('getRandomAmount <mean>')
     .description('Generate random amount')
-    .requiredOption('-m, --mean <mean>', 'mean')
-    .action((options) => {
-        const {mean} = options;
+    .action((mean) => {
         console.log(getRandomAmount(mean));
     });
 
